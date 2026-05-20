@@ -246,6 +246,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         }
         case MSG.GET_CAMPAIGN: {
           const c = await getCampaign();
+          // 防呆：超过 30 分钟自动过期（用户大概早就离开了）
+          if (c && c.active && c.startedAt && Date.now() - c.startedAt > 30 * 60 * 1000) {
+            await clearCampaign();
+            sendResponse({ ok: true, campaign: { active: false } });
+            break;
+          }
           sendResponse({ ok: true, campaign: c });
           break;
         }
@@ -271,7 +277,14 @@ chrome.runtime.onInstalled.addListener(async () => {
   // 确保默认 settings 落库
   const s = await getSettings();
   await setSettings(s);
+  // 每次安装/更新/重载扩展，重置 campaign 状态，避免上次未完成的批量扫描自动恢复
+  await clearCampaign();
   await ensureScheduler();
+});
+
+// 浏览器启动也清一下，避免昨天的 campaign 今天接着跑
+chrome.runtime.onStartup.addListener(async () => {
+  await clearCampaign();
 });
 
 // keep-alive heartbeat：MV3 service worker 会被回收，业务消息会唤醒

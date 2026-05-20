@@ -5,7 +5,10 @@ const MSG = {
   RESUME_QUEUE: 'jbd.resumeQueue',
   CLEAR_CACHE: 'jbd.clearCache',
   UPDATE_LIST: 'jbd.updateList',
-  GET_SETTINGS: 'jbd.getSettings'
+  GET_SETTINGS: 'jbd.getSettings',
+  START_CAMPAIGN: 'jbd.startCampaign',
+  STOP_CAMPAIGN: 'jbd.stopCampaign',
+  GET_CAMPAIGN: 'jbd.getCampaign'
 };
 
 const STATUS_NAME = {
@@ -169,6 +172,47 @@ $('#btn-resume').addEventListener('click', async () => {
   await sendMsg(MSG.RESUME_QUEUE);
   refreshStatus();
 });
+
+async function getActiveTabUrl() {
+  return new Promise((resolve) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      resolve((tabs && tabs[0] && tabs[0].url) || '');
+    });
+  });
+}
+
+async function refreshCampaign() {
+  const res = await sendMsg(MSG.GET_CAMPAIGN);
+  const c = (res && res.campaign) || {};
+  const startBtn = $('#btn-campaign-start');
+  const stopBtn = $('#btn-campaign-stop');
+  const status = $('#campaign-status');
+  if (c.active) {
+    startBtn.classList.add('hidden');
+    stopBtn.classList.remove('hidden');
+    status.textContent = `进行中 · 第 ${c.currentPage || 1}/${c.maxPages || '?'} 页`;
+  } else {
+    startBtn.classList.remove('hidden');
+    stopBtn.classList.add('hidden');
+    status.textContent = '';
+  }
+}
+
+$('#btn-campaign-start').addEventListener('click', async () => {
+  const maxPages = parseInt($('#campaign-pages').value, 10) || 5;
+  const url = await getActiveTabUrl();
+  if (!url || !/^https?:\/\/[^\/]*juming\.com/.test(url)) {
+    alert('请先在 juming.com 域名列表页打开（如 /ykj/、/auction/、/buy/）');
+    return;
+  }
+  await sendMsg(MSG.START_CAMPAIGN, { maxPages, startUrl: url });
+  refreshCampaign();
+});
+
+$('#btn-campaign-stop').addEventListener('click', async () => {
+  await sendMsg(MSG.STOP_CAMPAIGN);
+  refreshCampaign();
+});
 $('#btn-options').addEventListener('click', () => chrome.runtime.openOptionsPage());
 $('#btn-clear-cache').addEventListener('click', async () => {
   if (!confirm('确定清空所有缓存？历史记录仍保留。')) return;
@@ -185,6 +229,13 @@ $('#status-filter').addEventListener('change', renderHistory);
   await loadLists();
   await refreshHistory();
   await refreshStatus();
+  await refreshCampaign();
+  // 从 settings 拿默认 maxPages 填到 input
+  const res = await sendMsg(MSG.GET_SETTINGS);
+  if (res && res.ok && res.settings && res.settings.maxPages) {
+    $('#campaign-pages').value = res.settings.maxPages;
+  }
   setInterval(refreshStatus, 1500);
   setInterval(refreshHistory, 5000);
+  setInterval(refreshCampaign, 1500);
 })();

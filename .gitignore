@@ -4,6 +4,7 @@ node_modules/
 *.crx
 *.pem
 dist/
+_metadata/
 .vscode/
 .idea/
 .omc/state/

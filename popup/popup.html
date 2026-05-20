@@ -20,6 +20,15 @@
     <div class="status-pill captcha-pill hidden" id="captcha-warn">⚠ 检测到验证码 / 请到 baidu.com 通过后点继续</div>
   </section>
 
+  <section class="campaign-bar">
+    <span class="cmp-label">📑 批量扫描</span>
+    <input type="number" id="campaign-pages" min="1" max="50" value="5" />
+    <span class="cmp-label">页</span>
+    <button id="btn-campaign-start" class="btn primary">开始</button>
+    <button id="btn-campaign-stop" class="btn danger hidden">停止</button>
+    <span id="campaign-status" class="cmp-status"></span>
+  </section>
+
   <section class="filter-bar">
     <input id="search" placeholder="过滤域名 / 状态…" />
     <select id="status-filter">

@@ -7,6 +7,7 @@ const CACHE_NS = 'jbd_cache_v1';
 const HISTORY_KEY = 'jbd_history_v1';
 const SETTINGS_KEY = 'jbd_settings_v1';
 const LISTS_KEY = 'jbd_lists_v1'; // {whitelist:[], blacklist:[]}
+const CAMPAIGN_KEY = 'jbd_campaign_v1';
 
 export const DEFAULTS = {
   concurrency: 3,
@@ -17,7 +18,9 @@ export const DEFAULTS = {
   rotateUserAgent: true,
   greenMinIndexed: 10,
   yellowMinIndexed: 1,
-  historyLimit: 500
+  historyLimit: 500,
+  maxPages: 5,
+  pageIdleMs: 4000
 };
 
 const storage = chrome.storage.local;
@@ -93,4 +96,19 @@ export async function setLists(patch) {
   const next = { ...cur, ...patch };
   await set(LISTS_KEY, next);
   return next;
+}
+
+export async function getCampaign() {
+  return get(CAMPAIGN_KEY, { active: false, currentPage: 0, maxPages: 0 });
+}
+
+export async function setCampaign(patch) {
+  const cur = await getCampaign();
+  const next = { ...cur, ...patch };
+  await set(CAMPAIGN_KEY, next);
+  return next;
+}
+
+export async function clearCampaign() {
+  await set(CAMPAIGN_KEY, { active: false, currentPage: 0, maxPages: 0 });
 }

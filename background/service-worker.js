@@ -18,6 +18,9 @@ import {
   setSettings,
   getLists,
   setLists,
+  getCampaign,
+  setCampaign,
+  clearCampaign,
   DEFAULTS
 } from './cache.js';
 import { queryBaidu } from './baidu-client.js';
@@ -40,7 +43,12 @@ const MSG = {
   CAPTCHA_DETECTED: 'jbd.captchaDetected',
   EXPORT_CSV: 'jbd.exportCsv',
   UPDATE_LIST: 'jbd.updateList',
-  CLEAR_HISTORY: 'jbd.clearHistory'
+  CLEAR_HISTORY: 'jbd.clearHistory',
+  START_CAMPAIGN: 'jbd.startCampaign',
+  STOP_CAMPAIGN: 'jbd.stopCampaign',
+  GET_CAMPAIGN: 'jbd.getCampaign',
+  INCR_CAMPAIGN: 'jbd.incrCampaign',
+  CAMPAIGN_UPDATE: 'jbd.campaignUpdate'
 };
 
 let scheduler = null;
@@ -214,6 +222,39 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         case MSG.GET_QUEUE_STATUS: {
           const s = await ensureScheduler();
           sendResponse({ ok: true, status: { ...s.status(), captchaPaused } });
+          break;
+        }
+        case MSG.START_CAMPAIGN: {
+          const { maxPages, startUrl } = msg.payload || {};
+          const settings = await getSettings();
+          const c = await setCampaign({
+            active: true,
+            currentPage: 1,
+            maxPages: Math.max(1, parseInt(maxPages, 10) || settings.maxPages || 5),
+            startUrl: startUrl || '',
+            startedAt: Date.now()
+          });
+          broadcast(MSG.CAMPAIGN_UPDATE, c);
+          sendResponse({ ok: true, campaign: c });
+          break;
+        }
+        case MSG.STOP_CAMPAIGN: {
+          await clearCampaign();
+          broadcast(MSG.CAMPAIGN_UPDATE, { active: false });
+          sendResponse({ ok: true });
+          break;
+        }
+        case MSG.GET_CAMPAIGN: {
+          const c = await getCampaign();
+          sendResponse({ ok: true, campaign: c });
+          break;
+        }
+        case MSG.INCR_CAMPAIGN: {
+          const cur = await getCampaign();
+          if (!cur || !cur.active) { sendResponse({ ok: false, error: 'campaign-not-active' }); break; }
+          const next = await setCampaign({ currentPage: (cur.currentPage || 1) + 1 });
+          broadcast(MSG.CAMPAIGN_UPDATE, next);
+          sendResponse({ ok: true, campaign: next });
           break;
         }
         default:

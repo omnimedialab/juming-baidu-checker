@@ -98,6 +98,8 @@
         if (n.parentElement && n.parentElement.classList && n.parentElement.classList.contains('jbd-badge')) {
           return NodeFilter.FILTER_REJECT;
         }
+        // /g flag 的 .test() 会保留 lastIndex，跨节点会漏匹配 — 每次必须先归零
+        DOMAIN_RE.lastIndex = 0;
         return DOMAIN_RE.test(v) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
       }
     });
@@ -133,6 +135,10 @@
       } catch (_) {}
     }
 
+    if (results.length) {
+      const uniq = Array.from(new Set(results.map(r => r.domain)));
+      console.log('[JBD] scanRoot detected', uniq.length, 'domain(s):', uniq);
+    }
     return results;
   }
 

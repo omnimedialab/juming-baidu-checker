@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>JBD Checker</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <h1>聚名网域名百度质量检测</h1>
+    <div class="actions">
+      <button id="btn-pause" class="btn">暂停</button>
+      <button id="btn-resume" class="btn primary">继续</button>
+      <button id="btn-options" class="btn">设置</button>
+    </div>
+  </header>
+
+  <section class="status-bar">
+    <div class="status-pill" id="status-summary">载入中…</div>
+    <div class="status-pill captcha-pill hidden" id="captcha-warn">⚠ 检测到验证码 / 请到 baidu.com 通过后点继续</div>
+  </section>
+
+  <section class="filter-bar">
+    <input id="search" placeholder="过滤域名 / 状态…" />
+    <select id="status-filter">
+      <option value="">全部状态</option>
+      <option value="green">绿 / 值得</option>
+      <option value="yellow">黄 / 待复核</option>
+      <option value="red">红 / 不建议</option>
+      <option value="error">错误</option>
+      <option value="blacklisted">黑名单</option>
+      <option value="whitelisted">白名单</option>
+    </select>
+    <button id="btn-export" class="btn">导出 CSV</button>
+    <button id="btn-clear-cache" class="btn danger">清缓存</button>
+  </section>
+
+  <section class="history-section">
+    <table id="history-table">
+      <thead>
+        <tr>
+          <th>状态</th>
+          <th>域名</th>
+          <th>收录</th>
+          <th>首页</th>
+          <th>BR</th>
+          <th>时间</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="history-body">
+      </tbody>
+    </table>
+    <div class="empty hidden" id="empty-state">还没有任何检测历史。打开聚名网域名列表页即可开始。</div>
+  </section>
+
+  <script src="popup.js"></script>
+</body>
+</html>

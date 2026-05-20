@@ -1,0 +1,48 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": {
+      "type": "modifyHeaders",
+      "requestHeaders": [
+        { "header": "user-agent", "operation": "set", "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" },
+        { "header": "accept-language", "operation": "set", "value": "zh-CN,zh;q=0.9,en;q=0.8" },
+        { "header": "referer", "operation": "set", "value": "https://www.baidu.com/" }
+      ]
+    },
+    "condition": {
+      "urlFilter": "||baidu.com/s",
+      "resourceTypes": ["xmlhttprequest"]
+    }
+  },
+  {
+    "id": 2,
+    "priority": 1,
+    "action": {
+      "type": "modifyHeaders",
+      "requestHeaders": [
+        { "header": "user-agent", "operation": "set", "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" },
+        { "header": "accept-language", "operation": "set", "value": "zh-CN,zh;q=0.9" }
+      ]
+    },
+    "condition": {
+      "urlFilter": "||chinaz.com",
+      "resourceTypes": ["xmlhttprequest"]
+    }
+  },
+  {
+    "id": 3,
+    "priority": 1,
+    "action": {
+      "type": "modifyHeaders",
+      "requestHeaders": [
+        { "header": "user-agent", "operation": "set", "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" },
+        { "header": "accept-language", "operation": "set", "value": "zh-CN,zh;q=0.9" }
+      ]
+    },
+    "condition": {
+      "urlFilter": "||aizhan.com",
+      "resourceTypes": ["xmlhttprequest"]
+    }
+  }
+]

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>JBD Checker · 设置</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <h1>聚名网域名百度质量检测 · 设置</h1>
+
+  <section class="card">
+    <h2>请求节流</h2>
+    <div class="field">
+      <label>并发数 (1-5)</label>
+      <input type="number" id="concurrency" min="1" max="5" />
+    </div>
+    <div class="field">
+      <label>请求延迟下限 (ms)</label>
+      <input type="number" id="delayMinMs" min="0" step="100" />
+    </div>
+    <div class="field">
+      <label>请求延迟上限 (ms)</label>
+      <input type="number" id="delayMaxMs" min="0" step="100" />
+    </div>
+    <div class="field">
+      <label>缓存 TTL (天)</label>
+      <input type="number" id="cacheTtlDays" min="1" max="60" />
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>判定阈值</h2>
+    <div class="field">
+      <label>绿色 · 收录数 ≥</label>
+      <input type="number" id="greenMinIndexed" min="0" />
+    </div>
+    <div class="field">
+      <label>黄色 · 收录数 ≥</label>
+      <input type="number" id="yellowMinIndexed" min="0" />
+    </div>
+    <div class="field">
+      <label>启用 Chinaz BR 抓取</label>
+      <input type="checkbox" id="enableChinaz" />
+    </div>
+    <div class="field">
+      <label>UA 池随机化</label>
+      <input type="checkbox" id="rotateUserAgent" />
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>名单</h2>
+    <div class="field">
+      <label>白名单（每行一个）</label>
+      <textarea id="whitelist" rows="6"></textarea>
+    </div>
+    <div class="field">
+      <label>黑名单（每行一个）</label>
+      <textarea id="blacklist" rows="6"></textarea>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>危险操作</h2>
+    <button id="clearCache" class="danger">清空缓存</button>
+    <button id="clearHistory" class="danger">清空历史</button>
+  </section>
+
+  <div class="footer">
+    <button id="save" class="primary">保存设置</button>
+    <span id="saved-msg" class="hidden">已保存</span>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

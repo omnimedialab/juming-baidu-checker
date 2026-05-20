@@ -1,0 +1,13 @@
+.DS_Store
+node_modules/
+*.zip
+*.crx
+*.pem
+dist/
+.vscode/
+.idea/
+.omc/state/
+.omc/logs/
+.omc/sessions/
+.omc/notepad.md
+.omc/project-memory.json

@@ -1,0 +1,72 @@
+{
+  "manifest_version": 3,
+  "name": "聚名网域名百度质量检测",
+  "short_name": "JBD Checker",
+  "version": "0.1.0",
+  "description": "在聚名网域名拍卖/列表页面上自动检测域名在百度的收录与降权情况，辅助站群（PBN）选域。",
+  "default_locale": "zh_CN",
+  "icons": {
+    "16": "assets/icon-16.png",
+    "48": "assets/icon-48.png",
+    "128": "assets/icon-128.png"
+  },
+  "action": {
+    "default_title": "聚名网域名百度质量检测",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "assets/icon-16.png",
+      "48": "assets/icon-48.png",
+      "128": "assets/icon-128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+  "options_page": "options/options.html",
+  "permissions": [
+    "storage",
+    "alarms",
+    "declarativeNetRequest"
+  ],
+  "host_permissions": [
+    "*://*.juming.com/*",
+    "*://*.baidu.com/*",
+    "*://*.chinaz.com/*",
+    "*://*.aizhan.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.juming.com/*"
+      ],
+      "js": [
+        "lib/messaging.js",
+        "lib/utils.js",
+        "content/domain-extractor.js",
+        "content/badge-injector.js",
+        "content/content-script.js"
+      ],
+      "css": [
+        "content/content.css"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "ua_rules",
+        "enabled": true,
+        "path": "background/dnr-rules.json"
+      }
+    ]
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*"],
+      "matches": ["*://*.juming.com/*"]
+    }
+  ]
+}

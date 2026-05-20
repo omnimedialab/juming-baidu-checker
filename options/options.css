@@ -1,0 +1,76 @@
+body {
+  margin: 0;
+  padding: 20px;
+  background: #fafafa;
+  color: #212121;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+  font-size: 14px;
+  max-width: 760px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+h1 {
+  font-size: 18px;
+  margin: 0 0 16px;
+}
+
+h2 {
+  font-size: 14px;
+  margin: 0 0 12px;
+  border-bottom: 1px solid #eceff1;
+  padding-bottom: 6px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #eceff1;
+  border-radius: 6px;
+  padding: 14px 18px;
+  margin-bottom: 14px;
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.field label {
+  flex: 0 0 200px;
+  color: #455a64;
+}
+.field input[type="number"],
+.field textarea {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid #cfd8dc;
+  border-radius: 4px;
+  font: inherit;
+}
+.field textarea {
+  font-family: ui-monospace, "JetBrains Mono", "Menlo", monospace;
+}
+
+button {
+  background: #fff;
+  border: 1px solid #cfd8dc;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font: inherit;
+}
+button.primary { background: #1565c0; color: #fff; border-color: #1565c0; }
+button.danger  { color: #c62828; border-color: #c62828; }
+
+.footer {
+  position: sticky;
+  bottom: 0;
+  background: #fafafa;
+  padding: 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hidden { display: none !important; }

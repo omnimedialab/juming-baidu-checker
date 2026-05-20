@@ -265,19 +265,46 @@ $('#btn-retry-errors').addEventListener('click', async () => {
 $('#btn-export').addEventListener('click', () => {
   downloadCSV(toCSV(history));
 });
-$('#search').addEventListener('input', renderHistory);
-$('#status-filter').addEventListener('change', renderHistory);
+const POPUP_PREFS_KEY = 'jbd_popup_prefs_v1';
+
+async function loadPopupPrefs() {
+  const res = await new Promise(r => chrome.storage.local.get([POPUP_PREFS_KEY], r));
+  const prefs = res[POPUP_PREFS_KEY] || {};
+  if (prefs.search) $('#search').value = prefs.search;
+  if (prefs.statusFilter) $('#status-filter').value = prefs.statusFilter;
+  if (prefs.campaignPages) $('#campaign-pages').value = prefs.campaignPages;
+}
+
+async function savePopupPrefs(patch) {
+  const res = await new Promise(r => chrome.storage.local.get([POPUP_PREFS_KEY], r));
+  const cur = res[POPUP_PREFS_KEY] || {};
+  await chrome.storage.local.set({ [POPUP_PREFS_KEY]: { ...cur, ...patch } });
+}
+
+$('#search').addEventListener('input', () => {
+  savePopupPrefs({ search: $('#search').value });
+  renderHistory();
+});
+$('#status-filter').addEventListener('change', () => {
+  savePopupPrefs({ statusFilter: $('#status-filter').value });
+  renderHistory();
+});
+$('#campaign-pages').addEventListener('change', () => {
+  savePopupPrefs({ campaignPages: $('#campaign-pages').value });
+});
 
 (async function init() {
   await loadLists();
-  await refreshHistory();
-  await refreshStatus();
-  await refreshCampaign();
-  // 从 settings 拿默认 maxPages 填到 input
+  // 1) 先用 settings 默认 maxPages 兜底填 campaign input
   const res = await sendMsg(MSG.GET_SETTINGS);
   if (res && res.ok && res.settings && res.settings.maxPages) {
     $('#campaign-pages').value = res.settings.maxPages;
   }
+  // 2) 然后用上次保存的 popup 偏好覆盖（filter / search / 上次输入的页数）
+  await loadPopupPrefs();
+  await refreshHistory();
+  await refreshStatus();
+  await refreshCampaign();
   setInterval(refreshStatus, 1500);
   setInterval(refreshHistory, 5000);
   setInterval(refreshCampaign, 1500);

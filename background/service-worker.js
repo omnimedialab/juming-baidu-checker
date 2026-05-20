@@ -251,6 +251,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
             startedAt: Date.now()
           });
           broadcast(MSG.CAMPAIGN_UPDATE, c);
+          // 主动通知活动 tab 做一次显式重扫，给用户可见反馈
+          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            if (tabs && tabs[0] && tabs[0].id) {
+              chrome.tabs.sendMessage(tabs[0].id, { type: 'jbd.campaignKickstart', payload: c }).catch(() => {});
+            }
+          });
           sendResponse({ ok: true, campaign: c });
           break;
         }

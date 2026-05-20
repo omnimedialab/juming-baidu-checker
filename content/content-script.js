@@ -23,7 +23,7 @@
   let pageIdleMs = 6000;
   let minDwellMs = 10000;
   let paginationTriedAt = 0;
-  const pageLoadedAt = Date.now();
+  let pageLoadedAt = Date.now();
   let everHadPending = false;          // 是否至少扫到过 1 个域名（防止空页立刻跳）
   let paginationCountdown = null;
 
@@ -78,6 +78,25 @@
     } else if (msg.type === MSG.CAMPAIGN_UPDATE) {
       // 仅用于打印日志，逻辑由 idle 轮询统一处理
       console.log('[JBD] campaign update', msg.payload);
+    } else if (msg.type === 'jbd.campaignKickstart') {
+      console.log('[JBD] campaign kickstart');
+      // 重置本页状态，强制重扫；同时把 pageLoadedAt 重置，让 minDwellMs 从此刻开始数
+      seenDomains.clear();
+      pendingDomains.clear();
+      everHadPending = false;
+      paginationTriedAt = 0;
+      pageLoadedAt = Date.now();
+      lastActivity = Date.now();
+      // 把已注入的 badge 也清掉（避免显示残留）
+      document.querySelectorAll('.jbd-badge').forEach(el => el.remove());
+      scanAndInject(document.body);
+      const found = seenDomains.size;
+      const c = msg.payload || {};
+      if (found > 0) {
+        showToast(`📑 已启动批量扫描 · 第 ${c.currentPage || 1}/${c.maxPages || '?'} 页 · 本页发现 ${found} 个域名`);
+      } else {
+        showToast(`⚠ 已启动批量扫描，但本页未识别到可检测域名（可能都被跳过列表过滤）`);
+      }
     }
   });
 

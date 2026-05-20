@@ -22,6 +22,21 @@ const STATUS_NAME = {
   whitelisted: '白名单'
 };
 
+const ERROR_NAME = {
+  captcha: '验证码',
+  parse: '解析失败',
+  network: '网络',
+  read: '读取',
+  exception: '异常'
+};
+
+function statusLabel(r) {
+  if (r.status === 'error' && r.error && ERROR_NAME[r.error]) {
+    return `错误·${ERROR_NAME[r.error]}`;
+  }
+  return STATUS_NAME[r.status] || r.status || '?';
+}
+
 const $ = (s) => document.querySelector(s);
 let history = [];
 let lists = { whitelist: [], blacklist: [] };
@@ -78,7 +93,7 @@ function renderHistory() {
   $('#empty-state').classList.add('hidden');
   for (const r of rows) {
     const tr = document.createElement('tr');
-    const statusName = STATUS_NAME[r.status] || r.status || '?';
+    const statusName = statusLabel(r);
     tr.innerHTML = `
       <td><span class="tag ${r.status || 'pending'}">${statusName}</span></td>
       <td>${escape(r.domain || '')}</td>
@@ -218,6 +233,16 @@ $('#btn-clear-cache').addEventListener('click', async () => {
   if (!confirm('确定清空所有缓存？历史记录仍保留。')) return;
   await sendMsg(MSG.CLEAR_CACHE);
   alert('缓存已清空');
+});
+$('#btn-retry-errors').addEventListener('click', async () => {
+  const res = await sendMsg('jbd.retryErrors');
+  if (res && res.ok) {
+    alert(`已重新排队 ${res.requeued || 0} 个错误项`);
+    refreshHistory();
+    refreshStatus();
+  } else {
+    alert('失败：' + (res && res.error));
+  }
 });
 $('#btn-export').addEventListener('click', () => {
   downloadCSV(toCSV(history));

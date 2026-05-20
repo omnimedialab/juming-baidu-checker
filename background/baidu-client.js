@@ -10,23 +10,25 @@ const COUNT_PATTERNS = [
   /百度为您找到相关结果约?\s*([\d,]+)\s*个/,
   /找到相关结果数约\s*([\d,]+)\s*个/,
   /找到相关结果约\s*([\d,]+)\s*个/,
-  /找到相关结果\s*([\d,]+)\s*个/
+  /找到相关结果\s*([\d,]+)\s*个/,
+  /百度为您找到\s*([\d,]+)\s*条相关结果/,
+  /共找到\s*([\d,]+)\s*个相关结果/,
+  /<span class="nums_text"[^>]*>[^<]*?([\d,]+)/,
+  /<div[^>]+class="nums"[^>]*>[\s\S]*?([\d,]+)\s*个/
 ];
 
 const NO_RESULT_PATTERNS = [
   /很抱歉，没有找到与/,
   /没有找到该URL/,
+  /没有找到该\s*URL/,
   /没有找到相关的网页/,
-  /No standard result/
+  /No standard result/,
+  /搜索结果为空/
 ];
 
-const CAPTCHA_PATTERNS = [
-  /wappass\.baidu\.com/,
-  /security_check/,
-  /\/static\/captcha/,
-  /请输入验证码/,
-  /verify/i
-];
+// 只用强信号识别验证码 — 不要用 /verify/i 这种容易误报的关键字
+const CAPTCHA_URL_RE = /wappass\.baidu\.com|\/static\/captcha|security_check|sec-bypass/i;
+const CAPTCHA_BODY_RE = /请输入验证码|请完成下方验证|请拖动下方滑块|滑动滑块完成验证|完成下方验证后继续访问|百度安全验证|网络不给力，请稍后重试/;
 
 function parseCount(html) {
   for (const re of COUNT_PATTERNS) {
@@ -43,9 +45,8 @@ function parseCount(html) {
 }
 
 function detectCaptcha(html, finalUrl) {
-  for (const re of CAPTCHA_PATTERNS) {
-    if (re.test(html) || re.test(finalUrl || '')) return true;
-  }
+  if (CAPTCHA_URL_RE.test(finalUrl || '')) return true;
+  if (CAPTCHA_BODY_RE.test(html || '')) return true;
   return false;
 }
 

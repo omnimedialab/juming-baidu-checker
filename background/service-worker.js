@@ -255,6 +255,22 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           sendResponse({ ok: true, campaign: c });
           break;
         }
+        case 'jbd.retryErrors': {
+          const all = await getAllCache();
+          const errored = [];
+          for (const [domain, entry] of Object.entries(all)) {
+            if (entry && entry.status === 'error') {
+              errored.push(domain);
+              delete all[domain];
+            }
+          }
+          if (errored.length) {
+            await chrome.storage.local.set({ jbd_cache_v1: all });
+            await enqueueDomains(errored);
+          }
+          sendResponse({ ok: true, requeued: errored.length });
+          break;
+        }
         case MSG.INCR_CAMPAIGN: {
           const cur = await getCampaign();
           if (!cur || !cur.active) { sendResponse({ ok: false, error: 'campaign-not-active' }); break; }

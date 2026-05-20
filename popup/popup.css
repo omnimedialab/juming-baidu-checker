@@ -129,14 +129,33 @@ th { background: #f5f5f5; position: sticky; top: 0; }
 .tag.blacklisted { background: #424242; }
 .tag.whitelisted { background: #1565c0; }
 
-.row-actions button {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  color: #1565c0;
-  font-size: 11px;
+.row-actions {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
 }
-.row-actions button.danger { color: #c62828; }
+.row-actions button {
+  border: 1px solid #cfd8dc;
+  background: #fff;
+  cursor: pointer;
+  color: #455a64;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.row-actions button:hover { background: #eceff1; }
+.row-actions button.prim {
+  background: #1565c0;
+  color: #fff;
+  border-color: #1565c0;
+  font-weight: 600;
+}
+.row-actions button.prim:hover { background: #0d47a1; }
+.row-actions button.danger {
+  color: #c62828;
+  border-color: #ffcdd2;
+}
 
 .empty {
   padding: 20px;

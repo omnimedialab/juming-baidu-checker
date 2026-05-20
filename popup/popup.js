@@ -87,9 +87,9 @@ function renderHistory() {
       <td>${r.chinazBR ?? '-'}</td>
       <td>${fmtTime(r.checkedAt)}</td>
       <td class="row-actions">
-        <button data-act="white" data-domain="${escape(r.domain)}">白</button>
-        <button data-act="black" data-domain="${escape(r.domain)}" class="danger">黑</button>
-        <button data-act="open" data-domain="${escape(r.domain)}">site:</button>
+        <button data-act="open" data-domain="${escape(r.domain)}" class="prim" title="在百度新标签页打开 site:${escape(r.domain)} 人工复核">🔍 去百度</button>
+        <button data-act="white" data-domain="${escape(r.domain)}" title="加入白名单：手动标记为良性域名，下次扫描自动判为绿">✓ 白</button>
+        <button data-act="black" data-domain="${escape(r.domain)}" class="danger" title="加入黑名单：手动标记为不要买，下次扫描自动判为红">✗ 黑</button>
       </td>
     `;
     tbody.appendChild(tr);

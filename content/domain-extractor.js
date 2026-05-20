@@ -26,6 +26,7 @@
     'jumingauction.com',
     'jiance.juming.com',
     'tools.juming.com',
+    'beiyongzhan.com',
     'bootcss.com',
     'bootcdn.cn',
     'baidu.com',
@@ -53,13 +54,42 @@
     'tcdn.com',
     'staticfile.org',
     'icpchecker.com',
+    'icp.gov.cn',
     'beian.miit.gov.cn',
     'miit.gov.cn',
+    'beian.gov.cn',
+    'internic.net',
+    'iana.org',
+    'icann.org',
+    'cnnic.cn',
+    'yunaq.com',
+    'trustutn.org',
+    'gsxt.gov.cn',
     'example.com',
     'example.net',
     'example.org',
     'localhost'
   ]);
+
+  // 后缀屏蔽：覆盖所有政府、备案、白皮书页脚装饰
+  const SKIP_SUFFIXES = [
+    '.gov.cn',
+    '.gov',
+    '.edu.cn',
+    '.edu',
+    '.miit.gov.cn',
+    '.beiyongzhan.com',
+    '.juming.com',
+    '.jumingauction.com',
+    '.baidu.com',
+    '.qq.com',
+    '.aliyuncs.com',
+    '.alicdn.com',
+    '.cloudflare.com',
+    '.googletagmanager.com',
+    '.google-analytics.com',
+    '.jsdelivr.net'
+  ];
 
   function normalize(raw) {
     let d = String(raw).trim().toLowerCase();
@@ -72,10 +102,9 @@
 
   function isSkipped(d) {
     if (SKIP_DOMAINS.has(d)) return true;
-    // 跳过 juming 自身子域
-    if (d.endsWith('.juming.com')) return true;
-    if (d.endsWith('.baidu.com')) return true;
-    if (d.endsWith('.qq.com')) return true;
+    for (const suf of SKIP_SUFFIXES) {
+      if (d.endsWith(suf)) return true;
+    }
     return false;
   }
 

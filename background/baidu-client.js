@@ -31,15 +31,17 @@ const CAPTCHA_URL_RE = /wappass\.baidu\.com|\/static\/captcha|security_check|sec
 const CAPTCHA_BODY_RE = /请输入验证码|请完成下方验证|请拖动下方滑块|滑动滑块完成验证|完成下方验证后继续访问|百度安全验证|网络不给力，请稍后重试/;
 
 function parseCount(html) {
+  // 关键：百度新版把数字用 <b>…</b> 包起来，必须先把标签去掉再匹配纯文本
+  const text = html.slice(0, 200000).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
   for (const re of COUNT_PATTERNS) {
-    const m = html.match(re);
+    const m = text.match(re);
     if (m) {
       const n = parseInt(m[1].replace(/,/g, ''), 10);
       if (!isNaN(n)) return n;
     }
   }
   for (const re of NO_RESULT_PATTERNS) {
-    if (re.test(html)) return 0;
+    if (re.test(text)) return 0;
   }
   return null;
 }
@@ -101,7 +103,9 @@ export async function queryBaidu(domain, { signal } = {}) {
 
   const count = parseCount(html);
   if (count === null) {
-    return { ok: false, error: 'parse', finalUrl, htmlSize: html.length };
+    const sample = html.slice(0, 6000);
+    console.log('[JBD] parse failed for', domain, 'html size:', html.length, 'url:', finalUrl);
+    return { ok: false, error: 'parse', finalUrl, htmlSize: html.length, sample };
   }
   const ranksFirst = count > 0 ? firstResultHomepage(html, domain) : false;
   return {

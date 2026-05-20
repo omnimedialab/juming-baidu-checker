@@ -234,6 +234,24 @@ $('#btn-clear-cache').addEventListener('click', async () => {
   await sendMsg(MSG.CLEAR_CACHE);
   alert('缓存已清空');
 });
+$('#btn-debug').addEventListener('click', async () => {
+  const res = await new Promise(r => chrome.storage.local.get(['jbd_last_parse_fail_v1'], r));
+  const data = res.jbd_last_parse_fail_v1;
+  if (!data) { alert('暂无解析失败样本（要么没失败，要么扩展刚加载）'); return; }
+  const text = `domain: ${data.domain}
+finalUrl: ${data.finalUrl}
+htmlSize: ${data.htmlSize}
+at: ${new Date(data.at).toLocaleString()}
+
+=== HTML SAMPLE (first 6KB) ===
+${data.sample}`;
+  try {
+    await navigator.clipboard.writeText(text);
+    alert('失败样本已复制到剪贴板（含元信息）。粘贴到聊天里我看下就能调正则。');
+  } catch (e) {
+    prompt('剪贴板写入失败，请手动复制下面内容：', text.slice(0, 500));
+  }
+});
 $('#btn-retry-errors').addEventListener('click', async () => {
   const res = await sendMsg('jbd.retryErrors');
   if (res && res.ok) {

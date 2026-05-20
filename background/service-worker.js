@@ -111,6 +111,17 @@ async function checkOneDomain(domain, settings, lists) {
   }
 
   const baidu = await queryBaidu(domain);
+  if (baidu && baidu.error === 'parse' && baidu.sample) {
+    await chrome.storage.local.set({
+      jbd_last_parse_fail_v1: {
+        domain,
+        sample: baidu.sample,
+        htmlSize: baidu.htmlSize,
+        finalUrl: baidu.finalUrl,
+        at: Date.now()
+      }
+    });
+  }
   if (baidu && baidu.error === 'captcha') {
     captchaPaused = true;
     (await ensureScheduler()).pause();

@@ -130,6 +130,11 @@ async function checkOneDomain(domain, settings, lists) {
     broadcast(MSG.DOMAIN_RESULT, { domain, ...entry });
     return entry;
   }
+  // 一旦有一次百度请求顺利返回（非验证码），自动撤掉 captchaPaused 警示
+  if (baidu && baidu.ok && captchaPaused) {
+    captchaPaused = false;
+  }
+
   let chinaz = null;
   if (settings.enableChinaz && baidu && baidu.ok) {
     chinaz = await queryChinaz(domain);

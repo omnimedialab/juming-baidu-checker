@@ -10,9 +10,9 @@ const LISTS_KEY = 'jbd_lists_v1'; // {whitelist:[], blacklist:[]}
 const CAMPAIGN_KEY = 'jbd_campaign_v1';
 
 export const DEFAULTS = {
-  concurrency: 3,
-  delayMinMs: 1200,
-  delayMaxMs: 3000,
+  concurrency: 2,
+  delayMinMs: 2000,
+  delayMaxMs: 4000,
   cacheTtlDays: 7,
   enableChinaz: false,
   rotateUserAgent: true,
@@ -20,7 +20,8 @@ export const DEFAULTS = {
   yellowMinIndexed: 1,
   historyLimit: 500,
   maxPages: 5,
-  pageIdleMs: 4000
+  pageIdleMs: 6000,
+  minDwellMs: 10000
 };
 
 const storage = chrome.storage.local;

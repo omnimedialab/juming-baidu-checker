@@ -20,8 +20,12 @@
   const pendingDomains = new Set();   // 已交给 background、还没回结果
   let pendingScan = null;
   let lastActivity = Date.now();
-  let pageIdleMs = 4000;
+  let pageIdleMs = 6000;
+  let minDwellMs = 10000;
   let paginationTriedAt = 0;
+  const pageLoadedAt = Date.now();
+  let everHadPending = false;          // 是否至少扫到过 1 个域名（防止空页立刻跳）
+  let paginationCountdown = null;
 
   function touch() { lastActivity = Date.now(); }
 
@@ -46,6 +50,7 @@
     }
     if (newDomains.length) {
       console.log('[JBD] requesting check for', newDomains.length, 'new domain(s)');
+      everHadPending = true;
       send(MSG.CHECK_DOMAINS, { domains: newDomains });
       touch();
     }
@@ -115,44 +120,92 @@
     return null;
   }
 
-  // 加载 settings (取 pageIdleMs)
+  // 加载 settings (取 pageIdleMs / minDwellMs)
   (async () => {
     const res = await send(MSG.GET_SETTINGS);
-    if (res && res.settings && res.settings.pageIdleMs) {
-      pageIdleMs = res.settings.pageIdleMs;
+    if (res && res.settings) {
+      if (res.settings.pageIdleMs) pageIdleMs = res.settings.pageIdleMs;
+      if (res.settings.minDwellMs) minDwellMs = res.settings.minDwellMs;
     }
   })();
 
   // Idle 轮询：判断本页是否扫完，且 campaign 是否需要翻页
   setInterval(async () => {
-    const idleFor = Date.now() - lastActivity;
-    if (idleFor < pageIdleMs) return;
-    if (pendingDomains.size > 0) return;
-    if (Date.now() - paginationTriedAt < 8000) return; // 防止短期内连续跳
+    if (paginationCountdown) return; // 倒计时进行中，别重复触发
 
+    const dwellFor = Date.now() - pageLoadedAt;
+    const idleFor = Date.now() - lastActivity;
+
+    // 是否处于 campaign（取 campaign 状态用于快速早返）
     const camp = await send(MSG.GET_CAMPAIGN);
     const c = camp && camp.campaign;
     if (!c || !c.active) return;
 
+    // 必须停留够最短时间
+    if (dwellFor < minDwellMs) {
+      console.log('[JBD] idle-check: waiting for min dwell', { dwellFor, minDwellMs });
+      return;
+    }
+    // 至少要识别过一个域名，避免空页立刻跳
+    if (!everHadPending) {
+      console.log('[JBD] idle-check: never had pending domains; skip');
+      return;
+    }
+    // 本页所有结果都回来了
+    if (pendingDomains.size > 0) {
+      console.log('[JBD] idle-check: pending', pendingDomains.size);
+      return;
+    }
+    // idle 持续时长够长
+    if (idleFor < pageIdleMs) {
+      console.log('[JBD] idle-check: idle too short', { idleFor, pageIdleMs });
+      return;
+    }
+    // 后台队列也得是空的
     const qs = await send(MSG.GET_QUEUE_STATUS);
-    if (qs && qs.status && (qs.status.queued > 0 || qs.status.inflight > 0)) return;
+    if (qs && qs.status && (qs.status.queued > 0 || qs.status.inflight > 0)) {
+      console.log('[JBD] idle-check: bg queue busy', qs.status);
+      return;
+    }
+    // 防止 8s 内重复
+    if (Date.now() - paginationTriedAt < 8000) return;
 
-    paginationTriedAt = Date.now();
-
+    // 决定下一步
     if ((c.currentPage || 1) >= (c.maxPages || 1)) {
       await send(MSG.STOP_CAMPAIGN);
-      showToast(`批量扫描完成 · 共 ${c.maxPages} 页`);
+      showToast(`✅ 批量扫描完成 · 共 ${c.maxPages} 页`);
+      paginationTriedAt = Date.now();
       return;
     }
     const nextUrl = findNextPageLink();
     if (!nextUrl) {
       await send(MSG.STOP_CAMPAIGN);
-      showToast('没找到下一页链接，扫描结束');
+      showToast('⚠ 没找到下一页链接，扫描结束');
+      paginationTriedAt = Date.now();
       return;
     }
-    await send(MSG.INCR_CAMPAIGN);
-    showToast(`第 ${c.currentPage}/${c.maxPages} 页扫描完毕，跳转下一页…`);
-    setTimeout(() => location.assign(nextUrl), 800);
+
+    // 3 秒倒计时让用户看清楚 / 有机会停止
+    let n = 3;
+    showToast(`第 ${c.currentPage}/${c.maxPages} 页扫描完毕，${n} 秒后跳转下一页…`);
+    paginationCountdown = setInterval(async () => {
+      n--;
+      if (n <= 0) {
+        clearInterval(paginationCountdown);
+        paginationCountdown = null;
+        // 跳转前再确认 campaign 仍 active（用户可能在倒计时里点停止）
+        const camp2 = await send(MSG.GET_CAMPAIGN);
+        if (!camp2 || !camp2.campaign || !camp2.campaign.active) {
+          showToast('已取消跳转');
+          return;
+        }
+        await send(MSG.INCR_CAMPAIGN);
+        paginationTriedAt = Date.now();
+        location.assign(nextUrl);
+      } else {
+        showToast(`第 ${c.currentPage}/${c.maxPages} 页扫描完毕，${n} 秒后跳转下一页…`);
+      }
+    }, 1000);
   }, 1500);
 
   // 简易 toast

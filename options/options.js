@@ -27,6 +27,7 @@ async function load() {
   $('#rotateUserAgent').checked = !!s.rotateUserAgent;
   $('#maxPages').value = s.maxPages;
   $('#pageIdleMs').value = s.pageIdleMs;
+  $('#minDwellMs').value = s.minDwellMs;
 
   const lists = res.lists || { whitelist: [], blacklist: [] };
   $('#whitelist').value = (lists.whitelist || []).join('\n');
@@ -51,7 +52,8 @@ async function save() {
     enableChinaz: $('#enableChinaz').checked,
     rotateUserAgent: $('#rotateUserAgent').checked,
     maxPages: parseInt($('#maxPages').value, 10) || 5,
-    pageIdleMs: parseInt($('#pageIdleMs').value, 10) || 4000
+    pageIdleMs: parseInt($('#pageIdleMs').value, 10) || 6000,
+    minDwellMs: parseInt($('#minDwellMs').value, 10) || 10000
   };
   if (patch.delayMaxMs < patch.delayMinMs) patch.delayMaxMs = patch.delayMinMs;
   await send(MSG.SET_SETTINGS, patch);

@@ -1,0 +1,13 @@
+{
+  "name": "link113-notify",
+  "version": "0.1.0",
+  "private": true,
+  "description": "link113 webhook -> Telegram relay for juming/gname checker",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

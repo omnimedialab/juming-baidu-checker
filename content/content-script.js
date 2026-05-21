@@ -64,8 +64,15 @@
     }, 300);
   }
 
-  chrome.runtime.onMessage.addListener((msg) => {
+  chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     if (!msg || !msg.type) return;
+    if (msg.type === MSG.GET_PAGE_DOMAINS) {
+      // 强制重扫一次（用户点了「link113→TG」时希望拿到最新的域名）
+      const fresh = extractor.scanRoot(document.body).map(h => h.domain);
+      const union = new Set([...seenDomains, ...fresh]);
+      sendResponse({ ok: true, domains: Array.from(union), pageUrl: location.href, pageTitle: document.title });
+      return; // sync response
+    }
     if (msg.type === MSG.DOMAIN_RESULT) {
       const { domain, ...rest } = msg.payload || {};
       if (domain) {

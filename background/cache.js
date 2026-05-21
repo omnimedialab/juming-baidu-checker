@@ -21,7 +21,12 @@ export const DEFAULTS = {
   historyLimit: 500,
   maxPages: 5,
   pageIdleMs: 6000,
-  minDwellMs: 10000
+  minDwellMs: 10000,
+  link113AccessKey: '',
+  link113AccessSecret: '',
+  link113Item: '',
+  telegramBotToken: '',
+  telegramChatId: ''
 };
 
 const storage = chrome.storage.local;

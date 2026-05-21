@@ -28,6 +28,11 @@ async function load() {
   $('#maxPages').value = s.maxPages;
   $('#pageIdleMs').value = s.pageIdleMs;
   $('#minDwellMs').value = s.minDwellMs;
+  $('#link113AccessKey').value = s.link113AccessKey || '';
+  $('#link113AccessSecret').value = s.link113AccessSecret || '';
+  $('#link113Item').value = s.link113Item || '';
+  $('#telegramBotToken').value = s.telegramBotToken || '';
+  $('#telegramChatId').value = s.telegramChatId || '';
 
   const lists = res.lists || { whitelist: [], blacklist: [] };
   $('#whitelist').value = (lists.whitelist || []).join('\n');
@@ -53,7 +58,12 @@ async function save() {
     rotateUserAgent: $('#rotateUserAgent').checked,
     maxPages: parseInt($('#maxPages').value, 10) || 5,
     pageIdleMs: parseInt($('#pageIdleMs').value, 10) || 6000,
-    minDwellMs: parseInt($('#minDwellMs').value, 10) || 10000
+    minDwellMs: parseInt($('#minDwellMs').value, 10) || 10000,
+    link113AccessKey: $('#link113AccessKey').value.trim(),
+    link113AccessSecret: $('#link113AccessSecret').value.trim(),
+    link113Item: $('#link113Item').value.trim(),
+    telegramBotToken: $('#telegramBotToken').value.trim(),
+    telegramChatId: $('#telegramChatId').value.trim()
   };
   if (patch.delayMaxMs < patch.delayMinMs) patch.delayMaxMs = patch.delayMinMs;
   await send(MSG.SET_SETTINGS, patch);

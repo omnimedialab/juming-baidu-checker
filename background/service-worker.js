@@ -27,6 +27,8 @@ import { queryBaidu } from './baidu-client.js';
 import { queryChinaz } from './chinaz-client.js';
 import { classify } from './classifier.js';
 import { Scheduler } from './scheduler.js';
+import { pushDomain as link113Push } from './link113-client.js';
+import { sendTelegram, escapeHtml } from './telegram-client.js';
 
 const MSG = {
   CHECK_DOMAINS: 'jbd.checkDomains',
@@ -48,7 +50,9 @@ const MSG = {
   STOP_CAMPAIGN: 'jbd.stopCampaign',
   GET_CAMPAIGN: 'jbd.getCampaign',
   INCR_CAMPAIGN: 'jbd.incrCampaign',
-  CAMPAIGN_UPDATE: 'jbd.campaignUpdate'
+  CAMPAIGN_UPDATE: 'jbd.campaignUpdate',
+  GET_PAGE_DOMAINS: 'jbd.getPageDomains',
+  PUSH_LINK113: 'jbd.pushLink113'
 };
 
 let scheduler = null;
@@ -293,6 +297,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           sendResponse({ ok: true, requeued: errored.length });
           break;
         }
+        case MSG.PUSH_LINK113: {
+          const r = await pushCurrentPageToLink113();
+          sendResponse(r);
+          break;
+        }
         case MSG.INCR_CAMPAIGN: {
           const cur = await getCampaign();
           if (!cur || !cur.active) { sendResponse({ ok: false, error: 'campaign-not-active' }); break; }
@@ -310,6 +319,97 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   })();
   return true; // async sendResponse
 });
+
+async function getActiveTabDomains() {
+  const tab = await new Promise((r) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => r((tabs && tabs[0]) || null));
+  });
+  if (!tab || !tab.id) return { ok: false, error: 'no-active-tab' };
+  if (!/^https?:\/\/[^\/]*(juming|gname)\.com/.test(tab.url || '')) {
+    return { ok: false, error: 'unsupported-host', url: tab.url || '' };
+  }
+  const res = await new Promise((resolve) => {
+    chrome.tabs.sendMessage(tab.id, { type: MSG.GET_PAGE_DOMAINS }, (r) => {
+      if (chrome.runtime.lastError) resolve({ ok: false, error: 'content-script-missing' });
+      else resolve(r || { ok: false, error: 'no-response' });
+    });
+  });
+  if (!res || !res.ok) return res || { ok: false, error: 'unknown' };
+  return { ok: true, domains: res.domains || [], pageUrl: tab.url || '', pageTitle: tab.title || '' };
+}
+
+async function pushCurrentPageToLink113() {
+  const settings = await getSettings();
+  const missing = [];
+  if (!settings.link113AccessKey) missing.push('link113AccessKey');
+  if (!settings.link113AccessSecret) missing.push('link113AccessSecret');
+  if (!settings.link113Item) missing.push('link113Item');
+  if (!settings.telegramBotToken) missing.push('telegramBotToken');
+  if (!settings.telegramChatId) missing.push('telegramChatId');
+  if (missing.length) return { ok: false, error: 'missing-settings', missing };
+
+  const dom = await getActiveTabDomains();
+  if (!dom.ok) return dom;
+  const domains = Array.from(new Set(dom.domains || [])).filter(Boolean);
+  if (!domains.length) return { ok: false, error: 'no-domains-on-page' };
+
+  // 1) push each to link113. Use a session prefix + index as id.
+  const sessionPrefix = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+  const results = [];
+  for (let i = 0; i < domains.length; i++) {
+    const d = domains[i];
+    const id = `${sessionPrefix}-${i}`;
+    const r = await link113Push({
+      id,
+      domain: d,
+      item: settings.link113Item,
+      accessKey: settings.link113AccessKey,
+      accessSecret: settings.link113AccessSecret
+    });
+    results.push({ domain: d, id, ok: r.ok, error: r.error || null, raw: r.raw || null });
+  }
+
+  const okCount = results.filter(r => r.ok).length;
+  const failCount = results.length - okCount;
+  const errSamples = results.filter(r => !r.ok).slice(0, 3)
+    .map(r => `${r.domain} → ${r.error || '?'}`).join('\n');
+
+  // 2) post a summary to TG
+  const lines = [];
+  lines.push(`🚀 <b>link113 提交</b> · item=<code>${escapeHtml(settings.link113Item)}</code>`);
+  lines.push(`<b>来源:</b> ${escapeHtml(dom.pageUrl)}`);
+  if (dom.pageTitle) lines.push(`<b>标题:</b> ${escapeHtml(dom.pageTitle)}`);
+  lines.push(`<b>提交:</b> ${okCount}/${results.length}${failCount ? ` · 失败 ${failCount}` : ''}`);
+  lines.push(`<b>session:</b> <code>${sessionPrefix}</code>`);
+  lines.push('');
+  lines.push('<b>域名列表:</b>');
+  for (const r of results) {
+    const baiduSite = `https://www.baidu.com/s?wd=site%3A${encodeURIComponent(r.domain)}`;
+    lines.push(`${r.ok ? '✅' : '❌'} <a href="${baiduSite}">${escapeHtml(r.domain)}</a>${r.ok ? '' : ` (${escapeHtml(r.error || '?')})`}`);
+  }
+  if (errSamples) {
+    lines.push('');
+    lines.push('<b>失败样本:</b>');
+    lines.push(`<pre>${escapeHtml(errSamples)}</pre>`);
+  }
+  // TG sendMessage 上限 4096 字符 — 超长就截断
+  let text = lines.join('\n');
+  if (text.length > 3800) text = text.slice(0, 3800) + '\n…(已截断)';
+  const tg = await sendTelegram({
+    botToken: settings.telegramBotToken,
+    chatId: settings.telegramChatId,
+    text
+  });
+
+  return {
+    ok: tg.ok,
+    pushed: okCount,
+    failed: failCount,
+    total: results.length,
+    sessionPrefix,
+    tg
+  };
+}
 
 chrome.runtime.onInstalled.addListener(async () => {
   // 确保默认 settings 落库

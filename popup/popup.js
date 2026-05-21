@@ -8,7 +8,8 @@ const MSG = {
   GET_SETTINGS: 'jbd.getSettings',
   START_CAMPAIGN: 'jbd.startCampaign',
   STOP_CAMPAIGN: 'jbd.stopCampaign',
-  GET_CAMPAIGN: 'jbd.getCampaign'
+  GET_CAMPAIGN: 'jbd.getCampaign',
+  PUSH_LINK113: 'jbd.pushLink113'
 };
 
 const STATUS_NAME = {
@@ -216,12 +217,50 @@ async function refreshCampaign() {
 $('#btn-campaign-start').addEventListener('click', async () => {
   const maxPages = parseInt($('#campaign-pages').value, 10) || 5;
   const url = await getActiveTabUrl();
-  if (!url || !/^https?:\/\/[^\/]*juming\.com/.test(url)) {
-    alert('请先在 juming.com 域名列表页打开（如 /ykj/、/auction/、/buy/）');
+  if (!url || !/^https?:\/\/[^\/]*(juming|gname)\.com/.test(url)) {
+    alert('请先在 juming.com / gname.com 域名列表页打开');
     return;
   }
   await sendMsg(MSG.START_CAMPAIGN, { maxPages, startUrl: url });
   refreshCampaign();
+});
+
+$('#btn-link113-push').addEventListener('click', async () => {
+  const btn = $('#btn-link113-push');
+  const status = $('#link113-status');
+  btn.disabled = true;
+  status.textContent = '提交中…';
+  try {
+    const res = await sendMsg(MSG.PUSH_LINK113);
+    if (!res || !res.ok) {
+      const err = res && res.error;
+      if (err === 'missing-settings') {
+        status.textContent = '⚠ 缺少配置';
+        alert('请到「设置」里填写：' + (res.missing || []).join(', '));
+        chrome.runtime.openOptionsPage();
+      } else if (err === 'unsupported-host') {
+        status.textContent = '⚠ 当前页不支持';
+        alert('请先在 juming.com / gname.com 域名列表页点这个按钮');
+      } else if (err === 'no-domains-on-page') {
+        status.textContent = '⚠ 本页未识别到域名';
+      } else if (err === 'content-script-missing') {
+        status.textContent = '⚠ 页面没注入';
+        alert('当前 tab 没注入 content script —— 刷新一下 juming/gname 页面再试');
+      } else {
+        status.textContent = '失败';
+        alert('提交失败: ' + JSON.stringify(res));
+      }
+    } else {
+      status.textContent = `✅ 已提交 ${res.pushed}/${res.total}${res.failed ? ` · 失败 ${res.failed}` : ''}${res.tg && res.tg.ok ? ' · TG ✓' : ' · TG ✗'}`;
+      if (res.tg && !res.tg.ok) {
+        alert('已 push link113，但 TG 发送失败：' + (res.tg.error || '?'));
+      }
+    }
+  } catch (e) {
+    status.textContent = '异常: ' + (e.message || e);
+  } finally {
+    btn.disabled = false;
+  }
 });
 
 $('#btn-campaign-stop').addEventListener('click', async () => {

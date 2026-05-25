@@ -1,172 +1,53 @@
 * { box-sizing: border-box; }
-
 html, body {
   margin: 0;
-  padding: 0;
+  padding: 14px 16px;
+  width: 280px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Helvetica, Arial, sans-serif;
   background: #fafafa;
   color: #212121;
-  width: 540px;
   font-size: 13px;
 }
 
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 12px;
-  background: #1565c0;
-  color: #fff;
-}
-
-header h1 {
-  margin: 0;
+h1 {
+  margin: 0 0 8px;
   font-size: 14px;
   font-weight: 600;
-}
-
-.actions { display: flex; gap: 6px; }
-
-.btn {
-  background: #fff;
   color: #1565c0;
-  border: 1px solid #1565c0;
-  border-radius: 4px;
-  padding: 4px 8px;
+}
+
+.hint {
+  margin: 4px 0 10px;
   font-size: 12px;
-  cursor: pointer;
-}
-.btn.primary { background: #2e7d32; color: #fff; border-color: #2e7d32; }
-.btn.danger  { background: #fff; color: #c62828; border-color: #c62828; }
-.btn:hover { opacity: 0.85; }
-
-.status-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: #fff;
-  border-bottom: 1px solid #e0e0e0;
-  flex-wrap: wrap;
-}
-.status-pill {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 12px;
-  background: #eceff1;
-  font-size: 12px;
-}
-.captcha-pill {
-  background: #ffe0b2;
-  color: #bf360c;
-  font-weight: 600;
-}
-.hidden { display: none !important; }
-
-.campaign-bar {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  background: #f5f5f5;
-  border-bottom: 1px solid #e0e0e0;
-}
-.link113-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: #fff8e1;
-  border-bottom: 1px solid #ffe082;
-}
-.campaign-bar input[type="number"] {
-  width: 60px;
-  padding: 4px 6px;
-  border: 1px solid #cfd8dc;
-  border-radius: 3px;
-  font-size: 12px;
-  text-align: center;
-}
-.cmp-label { color: #455a64; font-size: 12px; }
-.cmp-status { margin-left: auto; font-size: 12px; color: #1565c0; }
-
-.filter-bar {
-  display: flex;
-  gap: 6px;
-  padding: 8px 12px;
-  background: #fff;
-  border-bottom: 1px solid #e0e0e0;
-}
-.filter-bar input,
-.filter-bar select {
-  flex: 1;
-  padding: 4px 6px;
-  border: 1px solid #cfd8dc;
-  border-radius: 3px;
-  font-size: 12px;
-}
-.filter-bar input { min-width: 120px; }
-
-.history-section {
-  max-height: 440px;
-  overflow: auto;
-}
-table { width: 100%; border-collapse: collapse; }
-th, td {
-  padding: 6px 8px;
-  text-align: left;
-  border-bottom: 1px solid #eceff1;
-  font-size: 12px;
-}
-th { background: #f5f5f5; position: sticky; top: 0; }
-
-.tag {
-  display: inline-block;
-  padding: 2px 6px;
-  border-radius: 10px;
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-}
-.tag.green { background: #2e7d32; }
-.tag.yellow { background: #f9a825; color: #4e342e; }
-.tag.red { background: #c62828; }
-.tag.error { background: #6d4c41; }
-.tag.pending,
-.tag.queued { background: #9e9e9e; }
-.tag.blacklisted { background: #424242; }
-.tag.whitelisted { background: #1565c0; }
-
-.row-actions {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-.row-actions button {
-  border: 1px solid #cfd8dc;
-  background: #fff;
-  cursor: pointer;
   color: #455a64;
+  line-height: 1.5;
+}
+.hint.muted { color: #78909c; }
+
+.badge {
+  display: inline-block;
+  padding: 0 5px;
   font-size: 11px;
-  padding: 2px 6px;
+  color: #1565c0;
+  background: #e3f2fd;
+  border: 1px solid #bbdefb;
   border-radius: 3px;
-  white-space: nowrap;
-}
-.row-actions button:hover { background: #eceff1; }
-.row-actions button.prim {
-  background: #1565c0;
-  color: #fff;
-  border-color: #1565c0;
-  font-weight: 600;
-}
-.row-actions button.prim:hover { background: #0d47a1; }
-.row-actions button.danger {
-  color: #c62828;
-  border-color: #ffcdd2;
 }
 
-.empty {
-  padding: 20px;
-  text-align: center;
-  color: #757575;
+.range-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 8px 10px;
 }
+.range-group label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.range-group input[type="radio"] { margin: 0; }

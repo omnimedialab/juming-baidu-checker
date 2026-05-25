@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "聚名/Gname 域名百度质量检测",
-  "short_name": "JBD Checker",
-  "version": "0.2.0",
-  "description": "在聚名网 / Gname 域名拍卖/列表页面上检测域名在百度的收录与降权情况；支持一键调用 link113 并把结果推到 Telegram。",
+  "name": "聚名/Gname 域名 → 百度收录跳转",
+  "short_name": "JBD 百度跳转",
+  "version": "0.4.0",
+  "description": "在聚名网 / Gname 域名列表页,每个域名后面注入一个跳百度 site: 收录查询的小标签,时间段可在弹窗里配置。",
   "default_locale": "zh_CN",
   "icons": {
     "16": "assets/icon-16.png",
@@ -11,7 +11,7 @@
     "128": "assets/icon-128.png"
   },
   "action": {
-    "default_title": "聚名网域名百度质量检测",
+    "default_title": "百度跳转 — 选择时间段",
     "default_popup": "popup/popup.html",
     "default_icon": {
       "16": "assets/icon-16.png",
@@ -19,24 +19,12 @@
       "128": "assets/icon-128.png"
     }
   },
-  "background": {
-    "service_worker": "background/service-worker.js",
-    "type": "module"
-  },
-  "options_page": "options/options.html",
   "permissions": [
-    "storage",
-    "alarms",
-    "declarativeNetRequest"
+    "storage"
   ],
   "host_permissions": [
     "*://*.juming.com/*",
-    "*://*.gname.com/*",
-    "*://*.baidu.com/*",
-    "*://*.chinaz.com/*",
-    "*://*.aizhan.com/*",
-    "https://openapi.link113.com/*",
-    "https://api.telegram.org/*"
+    "*://*.gname.com/*"
   ],
   "content_scripts": [
     {
@@ -45,32 +33,11 @@
         "*://*.gname.com/*"
       ],
       "js": [
-        "lib/messaging.js",
-        "lib/utils.js",
         "content/domain-extractor.js",
-        "content/badge-injector.js",
         "content/content-script.js"
-      ],
-      "css": [
-        "content/content.css"
       ],
       "run_at": "document_idle",
       "all_frames": false
-    }
-  ],
-  "declarative_net_request": {
-    "rule_resources": [
-      {
-        "id": "ua_rules",
-        "enabled": true,
-        "path": "background/dnr-rules.json"
-      }
-    ]
-  },
-  "web_accessible_resources": [
-    {
-      "resources": ["assets/*"],
-      "matches": ["*://*.juming.com/*", "*://*.gname.com/*"]
     }
   ]
 }

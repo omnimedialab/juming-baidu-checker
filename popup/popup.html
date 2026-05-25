@@ -2,75 +2,19 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <title>JBD Checker</title>
+  <title>百度跳转时间段</title>
   <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
-  <header>
-    <h1>聚名网域名百度质量检测</h1>
-    <div class="actions">
-      <button id="btn-pause" class="btn">暂停</button>
-      <button id="btn-resume" class="btn primary">继续</button>
-      <button id="btn-options" class="btn">设置</button>
-    </div>
-  </header>
-
-  <section class="status-bar">
-    <div class="status-pill" id="status-summary">载入中…</div>
-    <div class="status-pill captcha-pill hidden" id="captcha-warn">⚠ 检测到验证码 / 请到 baidu.com 通过后点继续</div>
-  </section>
-
-  <section class="campaign-bar">
-    <span class="cmp-label">📑 批量扫描</span>
-    <input type="number" id="campaign-pages" min="1" max="50" value="5" />
-    <span class="cmp-label">页</span>
-    <button id="btn-campaign-start" class="btn primary">开始</button>
-    <button id="btn-campaign-stop" class="btn danger hidden">停止</button>
-    <span id="campaign-status" class="cmp-status"></span>
-  </section>
-
-  <section class="link113-bar">
-    <span class="cmp-label">🚀 当前页域名 → link113</span>
-    <button id="btn-link113-push" class="btn primary" title="把当前活动页扫到的所有域名提交给 link113，并把列表发送到 Telegram 群">提交 + 通报 TG</button>
-    <span id="link113-status" class="cmp-status"></span>
-  </section>
-
-  <section class="filter-bar">
-    <input id="search" placeholder="过滤域名 / 状态…" />
-    <select id="status-filter">
-      <option value="">全部状态</option>
-      <option value="green">绿 / 值得</option>
-      <option value="yellow">黄 / 待复核</option>
-      <option value="red">红 / 不建议</option>
-      <option value="error">错误</option>
-      <option value="blacklisted">黑名单</option>
-      <option value="whitelisted">白名单</option>
-    </select>
-    <button id="btn-retry-errors" class="btn" title="清掉所有错误项的缓存并重新排队检测">↻ 重试错误</button>
-    <button id="btn-debug" class="btn" title="复制最近一次解析失败的百度 HTML 样本（用于反馈）">🔬 失败样本</button>
-    <button id="btn-export" class="btn">导出 CSV</button>
-    <button id="btn-clear-cache" class="btn danger">清缓存</button>
-  </section>
-
-  <section class="history-section">
-    <table id="history-table">
-      <thead>
-        <tr>
-          <th title="绿=值得购买 · 黄=待复核（数据不一致需手工去百度确认）· 红=不建议 · 错误=请求失败/验证码">状态</th>
-          <th>域名</th>
-          <th title="百度 site:domain.com 收录数">收录</th>
-          <th title="site: 首条是否为本站首页">首页</th>
-          <th title="Chinaz 百度权重（可在设置启用）">BR</th>
-          <th>时间</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody id="history-body">
-      </tbody>
-    </table>
-    <div class="empty hidden" id="empty-state">还没有任何检测历史。打开聚名网域名列表页即可开始。</div>
-  </section>
-
+  <h1>百度 site: 跳转时间段</h1>
+  <p class="hint">页面域名旁的 <span class="badge">百度</span> 标签会跳到这个时间段内的百度收录结果。</p>
+  <div class="range-group" id="range-group">
+    <label><input type="radio" name="range" value="day"   /> 一天内</label>
+    <label><input type="radio" name="range" value="week"  /> 一周内</label>
+    <label><input type="radio" name="range" value="month" /> 一个月内</label>
+    <label><input type="radio" name="range" value="all"   /> 全部时间</label>
+  </div>
+  <p class="hint muted">改了立即生效，已注入的标签会自动更新 href。</p>
   <script src="popup.js"></script>
 </body>
 </html>

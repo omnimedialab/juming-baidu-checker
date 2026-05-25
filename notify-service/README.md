@@ -15,7 +15,28 @@ PORT=3119
 # 可选
 # ALLOW_IPS=212.129.155.107
 # SHARED_SECRET=somelongrandom
+# 聚合模式：>0 把同 host+session 的多个 item 回调缓冲再合并发到 TG。
+# 静默 N ms 后才 flush。0 = 关闭(默认),每个 item 立即发一条。
+# AGGREGATE_WAIT_MS=20000
 ```
+
+## item 编码对照
+
+link113 每个 item 是独立查询，回调 result 只是单个数字字符串。常用：
+
+| item | 含义 |
+|------|------|
+| `baidu-s-count-day` | 百度日收 |
+| `baidu-s-count-week` | 百度周收 |
+| `baidu-s-count-month` | 百度月收 |
+| `baidu-s-count-year` | 百度年收 |
+| `baidu-s-count-all` | 百度总收 |
+| `baidu-check` | 百度是否收录 |
+| `sogou-s-count` | 搜狗总收 |
+| `so-s-count` | 360 总收 |
+| `bing-s-count` | 必应总收 |
+
+完整列表见 `GET https://api.link113.com/api/items/list`。
 
 ## 启动 (pm2)
 

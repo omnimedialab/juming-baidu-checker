@@ -16,6 +16,13 @@ h1 {
   color: #1565c0;
 }
 
+.section-title {
+  margin: 10px 0 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #37474f;
+}
+
 .hint {
   margin: 4px 0 10px;
   font-size: 12px;
@@ -34,7 +41,8 @@ h1 {
   border-radius: 3px;
 }
 
-.range-group {
+.range-group,
+.site-toggle {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -43,11 +51,13 @@ h1 {
   border-radius: 4px;
   padding: 8px 10px;
 }
-.range-group label {
+.range-group label,
+.site-toggle label {
   display: flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
   font-size: 13px;
 }
-.range-group input[type="radio"] { margin: 0; }
+.range-group input[type="radio"],
+.site-toggle input[type="checkbox"] { margin: 0; }

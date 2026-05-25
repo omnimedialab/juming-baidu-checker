@@ -2,19 +2,28 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <title>百度跳转时间段</title>
+  <title>百度跳转设置</title>
   <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
-  <h1>百度 site: 跳转时间段</h1>
-  <p class="hint">页面域名旁的 <span class="badge">百度</span> 标签会跳到这个时间段内的百度收录结果。</p>
+  <h1>百度 site: 跳转</h1>
+
+  <p class="section-title">启用站点</p>
+  <div class="site-toggle" id="site-toggle">
+    <label><input type="checkbox" data-host="juming.com" /> 在聚名网 (juming.com) 启用</label>
+    <label><input type="checkbox" data-host="gname.com" /> 在 Gname (gname.com) 启用</label>
+  </div>
+  <p class="hint muted">关闭后该站点不再注入 <span class="badge">百度</span> 标签,并移除已注入的;遇到刷新循环可关。</p>
+
+  <p class="section-title">跳转时间段</p>
   <div class="range-group" id="range-group">
     <label><input type="radio" name="range" value="day"   /> 一天内</label>
     <label><input type="radio" name="range" value="week"  /> 一周内</label>
     <label><input type="radio" name="range" value="month" /> 一个月内</label>
     <label><input type="radio" name="range" value="all"   /> 全部时间</label>
   </div>
-  <p class="hint muted">改了立即生效，已注入的标签会自动更新 href。</p>
+  <p class="hint muted">改了立即生效,已注入的标签会自动更新 href。</p>
+
   <script src="popup.js"></script>
 </body>
 </html>

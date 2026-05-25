@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "聚名/Gname 域名 → 百度收录跳转",
   "short_name": "JBD 百度跳转",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "在聚名网 / Gname 域名列表页,每个域名后面注入一个跳百度 site: 收录查询的小标签,时间段可在弹窗里配置。",
   "default_locale": "zh_CN",
   "icons": {
@@ -29,7 +29,12 @@
   "content_scripts": [
     {
       "matches": [
-        "*://*.juming.com/*",
+        "*://*.juming.com/auction/*",
+        "*://*.juming.com/buy/*",
+        "*://*.juming.com/expired/*",
+        "*://*.juming.com/pinyin/*",
+        "*://*.juming.com/reserve/*",
+        "*://*.juming.com/sale/*",
         "*://*.gname.com/*"
       ],
       "js": [
